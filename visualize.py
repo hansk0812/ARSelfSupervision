@@ -4,7 +4,7 @@ import numpy as np
 from pprint import pprint
 
 # sample: [[start, step, MAE, lambda]...]
-def plot_self_supervision_bar_graph(sample, save_path="fig.png"):
+def plot_self_supervision_bar_graph(sample, window_size, save_path="fig.png"):
 
     #xlabels = ["START=%.2f\nSTEP=%.2f" % (x[0], x[1]) for x in sample]
     xlabels = ["S=%.2f\ns=%.2f\nλ=%.2f" % (x[0], x[1], x[-1]) for x in sample]
@@ -41,7 +41,7 @@ def plot_self_supervision_bar_graph(sample, save_path="fig.png"):
         idx = (idx+1) % 2
         bottom += weight_count
 
-    ax.set_title("Self-Supervision Time Windows vs Mean Average Error")
+    ax.set_title("Self-Supervision Time Windows (size=%d) vs Mean Average Error" % window_size)
     #ax.legend(loc="upper right")
     
     plt.xticks(fontsize = 8) 

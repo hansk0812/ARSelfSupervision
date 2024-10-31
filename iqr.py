@@ -67,7 +67,7 @@ if __name__ == "__main__":
                 nets.append(line[0])
                 lambdas.append(float(out.split('\n')[0].split('=')[-1]))
                 
-                window = line[1]
+                window = int(line[1])
 
     indices = list(range(len(mse_algorithm)))
     indices = sorted(indices, key=lambda x: mse_algorithm[x])
@@ -92,4 +92,4 @@ if __name__ == "__main__":
     assert len(np.unique(nets)) == 1
     
     # samples: [[start, step, metric, lambda]...]
-    plot_self_supervision_bar_graph(samples, "net%s_window%d_mae%.4f.png" % (nets[0], int(window), float(mae_algorithm[0])))
+    plot_self_supervision_bar_graph(samples, window_size=window, "net%s_window%d_mae%.4f.png" % (nets[0], window, float(mae_algorithm[0])))
