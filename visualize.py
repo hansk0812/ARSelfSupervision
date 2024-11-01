@@ -56,13 +56,18 @@ def plot_self_supervision_bar_graph(sample, window_size, save_path="fig.png", sa
         print ("Saving %s!" % save_path)
         plt.savefig(save_path)
 
-def compare_best(window_size_samples_dict):
+def compare_best(window_size_samples_dict, dataset="NAMEOFDATASET"):
     # window_size_samples_dict (OrderedDict): Dictionary of window size keys: samples values, samples: [original, sota]
     # original, sota: [start, step, MAE, lambda]
     
     keys = list(window_size_samples_dict.keys())
 
-    xlabels = ["Window Size = %d" % keys[idx] for idx in range(len(keys))]
+    xlabels = ["Window Size = %d ; S=%.2f, s=%.2f, λ=%.2f" % (keys[idx], 
+                                                             window_size_samples_dict[keys[idx]][1][0],
+                                                             window_size_samples_dict[keys[idx]][1][1],
+                                                             window_size_samples_dict[keys[idx]][1][-1],
+                                                             ) 
+                                                             for idx in range(len(keys))]
 
     metrics = {
         'NHITS': [window_size_samples_dict[key][0][2] for key in keys],
@@ -84,12 +89,15 @@ def compare_best(window_size_samples_dict):
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel('Mean Average Error (MAE)')
+    ax.set_xlabel('Window Sizes, AR Self-Supervision Parameters: S-Start, s-Step (%s)' % dataset)
     ax.set_title('Window sizes vs Metric')
     ax.set_xticks(x + width*1.5, xlabels)
     ax.legend(loc='upper left', ncols=len(metrics))
 
     ax.set_ylim([0,1])
 
+    #props = dict(boxstyle='round', facecolor='grey', alpha=0.15)
+    #plt.text(0.924, 0.028, "S: START\ns: STEP", fontsize=8, transform=plt.gcf().transFigure, bbox=props)
     plt.show()
 
 if __name__ == "__main__":
