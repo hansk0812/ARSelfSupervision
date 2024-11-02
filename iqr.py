@@ -28,6 +28,7 @@ if __name__ == "__main__":
 
     ap = argparse.ArgumentParser()
     ap.add_argument("folders", nargs="+", help="Directory paths with metrics.csv for IQR based on top 10")
+    ap.add_argument("--mse", action="store_true", help="Use MSE instead of MAE for sorting")
     args = ap.parse_args()
 
     with open(os.path.join(args.folders[0], 'sota.csv'), 'r') as f:
@@ -70,7 +71,7 @@ if __name__ == "__main__":
                 window = int(line[1])
 
     indices = list(range(len(mse_algorithm)))
-    indices = sorted(indices, key=lambda x: mse_algorithm[x])
+    indices = sorted(indices, key=lambda x: mse_algorithm[x] if args.mse else mae_algorithm[x])
 
     mse_algorithm = np.array(mse_algorithm)[indices][:NUM_RESULTS]
     mae_algorithm = np.array(mae_algorithm)[indices][:NUM_RESULTS]
@@ -87,9 +88,9 @@ if __name__ == "__main__":
     for (start, step), LAMBDA, mae in zip(params, lambdas, mae_algorithm):
         samples.append([start, step, mae, LAMBDA])
     
-    samples = sorted(samples, key=lambda x: x[-1], reverse=True)
+    samples = sorted(samples, key=lambda x: x[-2], reverse=True)
 
     assert len(np.unique(nets)) == 1
     
     # samples: [[start, step, metric, lambda]...]
-    plot_self_supervision_bar_graph(samples, window_size=window, "net%s_window%d_mae%.4f.png" % (nets[0], window, float(mae_algorithm[0])))
+    plot_self_supervision_bar_graph(samples, window, "net%s_window%d_mae%.4f.png" % (nets[0], window, float(mae_algorithm[0])))
