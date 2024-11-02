@@ -11,9 +11,12 @@ if [[ "$donemodels" = "" ]]; then
     initial2=0.05
     inc2=0.06
     end2=0.4
+    
+    seedval=1
     for w in $(LC_ALL=en_US.UTF-8 seq $initial2 $inc2 $end2);
     do
-      START=$s STEP=$w LAMBDA=0.1 python ettm1.py
+      START=$s STEP=$w LAMBDA=0.1 python ettm1.py --seed $seedval
+      seedval=$((seedval+1))
     done
   done
 
@@ -26,9 +29,11 @@ else
 
   s=${ADDR[0]}
   
+  seedval=1
   for w in $(LC_ALL=en_US.UTF-8 seq $initial2 $inc2 $end2);
     do
-      START=$s STEP=$w LAMBDA=0.1 python ettm1.py
+      START=$s STEP=$w LAMBDA=0.1 python ettm1.py --seed $seedval
+      seedval=$((seedval+1))
     done
   
   inc=0.03
@@ -40,9 +45,12 @@ else
     initial2=0.05
     inc2=0.06
     end2=0.4
+
+    seedval=1
     for w in $(LC_ALL=en_US.UTF-8 seq $initial2 $inc2 $end2);
     do
-      START=$s STEP=$w LAMBDA=0.1 python ettm1.py
+      START=$s STEP=$w LAMBDA=0.1 python ettm1.py --seed $seedval
+      seedval=$((seedval+1))
     done
   done
 
