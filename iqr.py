@@ -35,8 +35,9 @@ if __name__ == "__main__":
         R = csv.reader(f)
         mse_original, mae_original = [], []
         for line in R:
-            mse_original.append(float(line[-2]))
-            mae_original.append(float(line[-1]))
+            # Order of metrics relatively defined! Change here if different!
+            mse_original.append(float(line[-1]))
+            mae_original.append(float(line[-2]))
 
     mse_original = np.array(mse_original)[:NUM_RESULTS]
     mae_original = np.array(mae_original)[:NUM_RESULTS]
@@ -47,7 +48,7 @@ if __name__ == "__main__":
     print ("Original MAE IQR:")
     print_iqr(mae_original)
 
-    samples = [[1, 1, mae_original.mean(), 0.5]]
+    samples = [[1, 1, mae_original.mean() if not args.mse else mse_original.mean(), 0.5]]
 
     mse_algorithm, mae_algorithm, params, nets, lambdas = [], [], [], [], []
     for folder in args.folders:
@@ -61,8 +62,9 @@ if __name__ == "__main__":
             for idx, line in enumerate(R):
                 if idx == 0:
                     continue
-                mse_algorithm.append(float(line[-2]))
-                mae_algorithm.append(float(line[-1]))
+                # Order of metrics relatively defined! Change here if different!
+                mse_algorithm.append(float(line[-1]))
+                mae_algorithm.append(float(line[-2]))
 
                 params.append([float(x) for x in line[2:4]])
                 nets.append(line[0])
@@ -85,12 +87,20 @@ if __name__ == "__main__":
     print ("Algorithm MAE IQR:")
     print_iqr(mae_algorithm)
     
-    for (start, step), LAMBDA, mae in zip(params, lambdas, mae_algorithm):
-        samples.append([start, step, mae, LAMBDA])
+    min_params, min_val = [], 10000
     
+    metric = mae_algorithm if not args.mse else mse_algorithm
+    for (start, step), LAMBDA, m in zip(params, lambdas, metric):
+        samples.append([start, step, m, LAMBDA])
+
+        if m < min_val:
+            min_val = m
+            min_params = [start, step, m, LAMBDA]
+    
+    print ("Best model parameters: START=%.2f STEP=%.2f LAMBDA=%.2f METRIC=%.5f" % (min_params[0], min_params[1], min_params[-1], min_params[-2]))
     samples = sorted(samples, key=lambda x: x[-2], reverse=True)
 
     assert len(np.unique(nets)) == 1
     
     # samples: [[start, step, metric, lambda]...]
-    plot_self_supervision_bar_graph(samples, window, "net%s_window%d_mae%.4f.png" % (nets[0], window, float(mae_algorithm[0])))
+    plot_self_supervision_bar_graph(samples, window, "net%s_window%d_mae%.4f.png" % (nets[0], window, float(mae_algorithm[0])), mse=args.mse)
